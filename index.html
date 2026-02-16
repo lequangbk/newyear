@@ -8,32 +8,58 @@ body {
   margin: 0;
   background: black;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
+
 canvas {
   position: absolute;
+  top: 0;
+  left: 0;
 }
+
 .message {
   position: absolute;
-  padding: 25px 50px;
-  background: red;
-  border: 6px solid gold;
-  color: gold;
-  font-size: 30px;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  font-size: 42px;
+  font-weight: bold;
   font-family: serif;
+  text-align: center;
   opacity: 0;
-  transition: 2s;
+  background: linear-gradient(45deg, gold, orange, red);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px gold, 0 0 40px orange;
+  transition: all 1.5s ease;
+}
+
+.message.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.horse {
+  position: absolute;
+  bottom: 20px;
+  font-size: 60px;
+  animation: run 8s linear infinite;
+}
+
+@keyframes run {
+  0% { left: -100px; }
+  100% { left: 110%; }
 }
 </style>
 </head>
 <body>
 
 <canvas id="canvas"></canvas>
+
 <div class="message" id="msg">
-Chúc em năm mới hạnh phúc 🌸
+Chúc em năm mới hạnh phúc 🧧✨
 </div>
+
+<div class="horse">🐎</div>
 
 <script>
 const canvas = document.getElementById("canvas");
@@ -47,13 +73,14 @@ function createFirework() {
   let x = Math.random() * canvas.width;
   let y = Math.random() * canvas.height / 2;
 
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 250; i++) {
     particles.push({
       x: x,
       y: y,
-      vx: (Math.random() - 0.5) * 6,
-      vy: (Math.random() - 0.5) * 6,
-      alpha: 1
+      vx: (Math.random() - 0.5) * 7,
+      vy: (Math.random() - 0.5) * 7,
+      alpha: 1,
+      color: `hsl(${Math.random()*360},100%,60%)`
     });
   }
 }
@@ -63,15 +90,17 @@ function animate() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   particles.forEach(p => {
-    ctx.fillStyle = "rgba(255,150,200," + p.alpha + ")";
+    ctx.fillStyle = p.color.replace(")", "," + p.alpha + ")").replace("hsl","hsla");
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
     ctx.fill();
 
     p.x += p.vx;
     p.y += p.vy;
     p.alpha -= 0.01;
   });
+
+  particles = particles.filter(p => p.alpha > 0);
 
   requestAnimationFrame(animate);
 }
@@ -80,8 +109,8 @@ setInterval(createFirework, 1000);
 animate();
 
 setTimeout(() => {
-  document.getElementById("msg").style.opacity = 1;
-}, 4000);
+  document.getElementById("msg").classList.add("show");
+}, 3000);
 
 </script>
 </body>
