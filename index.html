@@ -2,28 +2,29 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Chúc Mừng Năm Mới</title>
+<title>Chúc Em Năm Mới</title>
 <style>
 body {
   margin: 0;
   background: black;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 canvas {
-  display: block;
+  position: absolute;
 }
 .message {
   position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  padding: 25px 50px;
   background: red;
-  padding: 20px 40px;
-  border: 5px solid gold;
+  border: 6px solid gold;
   color: gold;
-  font-size: 28px;
+  font-size: 30px;
   font-family: serif;
-  display: none;
+  opacity: 0;
+  transition: 2s;
 }
 </style>
 </head>
@@ -31,7 +32,7 @@ canvas {
 
 <canvas id="canvas"></canvas>
 <div class="message" id="msg">
-Chúc em năm mới hạnh phúc
+Chúc em năm mới hạnh phúc 🌸
 </div>
 
 <script>
@@ -43,12 +44,15 @@ canvas.height = window.innerHeight;
 let particles = [];
 
 function createFirework() {
-  for (let i = 0; i < 300; i++) {
+  let x = Math.random() * canvas.width;
+  let y = Math.random() * canvas.height / 2;
+
+  for (let i = 0; i < 200; i++) {
     particles.push({
-      x: canvas.width / 2,
-      y: canvas.height / 2,
-      vx: (Math.random() - 0.5) * 8,
-      vy: (Math.random() - 0.5) * 8,
+      x: x,
+      y: y,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
       alpha: 1
     });
   }
@@ -72,12 +76,12 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-createFirework();
+setInterval(createFirework, 1000);
 animate();
 
 setTimeout(() => {
-  document.getElementById("msg").style.display = "block";
-}, 3000);
+  document.getElementById("msg").style.opacity = 1;
+}, 4000);
 
 </script>
 </body>
