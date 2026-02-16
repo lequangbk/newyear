@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Chúc Mừng Năm Mới</title>
+<style>
+body {
+  margin: 0;
+  background: black;
+  overflow: hidden;
+}
+canvas {
+  display: block;
+}
+.message {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: red;
+  padding: 20px 40px;
+  border: 5px solid gold;
+  color: gold;
+  font-size: 28px;
+  font-family: serif;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div class="message" id="msg">
+Chúc em năm mới hạnh phúc
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function createFirework() {
+  for (let i = 0; i < 300; i++) {
+    particles.push({
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8,
+      alpha: 1
+    });
+  }
+}
+
+function animate() {
+  ctx.fillStyle = "rgba(0,0,0,0.2)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  particles.forEach(p => {
+    ctx.fillStyle = "rgba(255,150,200," + p.alpha + ")";
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= 0.01;
+  });
+
+  requestAnimationFrame(animate);
+}
+
+createFirework();
+animate();
+
+setTimeout(() => {
+  document.getElementById("msg").style.display = "block";
+}, 3000);
+
+</script>
+</body>
+</html>
