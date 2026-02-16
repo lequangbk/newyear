@@ -1,138 +1,245 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Chúc Em Năm Mới</title>
+<title>Heart + Fireworks + Message</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+
 <style>
 body{
-  margin:0;
-  background:black;
-  overflow:hidden;
-  font-family:serif;
+    margin:0;
+    overflow:hidden;
+    background:#000;
 }
-
 canvas{
-  position:absolute;
-  top:0;
-  left:0;
+    display:block;
 }
 
-.message{
-  position:absolute;
-  top:40%;
-  left:50%;
-  transform:translate(-50%,-50%) scale(0.5);
-  font-size:48px;
-  font-weight:bold;
-  opacity:0;
-  background:linear-gradient(45deg,gold,orange,red);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  text-shadow:0 0 25px gold,0 0 50px orange;
-  transition:2s;
-}
-
-.message.show{
-  opacity:1;
-  transform:translate(-50%,-50%) scale(1);
-}
-
-.petal{
-  position:absolute;
-  top:-20px;
-  font-size:24px;
-  animation:fall linear infinite;
-}
-
-@keyframes fall{
-  0%{transform:translateY(0) rotate(0deg);}
-  100%{transform:translateY(110vh) rotate(360deg);}
+#message{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:65%;
+    text-align:center;
+    font-family:'Dancing Script', cursive;
+    font-size:36px;
+    line-height:1.6;
+    color:#ff77aa;
+    opacity:0;
+    transition:opacity 1s ease;
+    text-shadow:0 0 25px rgba(255,100,180,0.9);
+    pointer-events:none;
 }
 </style>
 </head>
+
 <body>
 
 <canvas id="canvas"></canvas>
-
-<div class="message" id="msg">
-Chúc em năm mới hạnh phúc 💖🌸
-</div>
+<div id="message"></div>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let particles = [];
+const particles = [];
+const dust = [];
+const fireworks = [];
+const totalParticles = 5000;
 
-function heartShape(t){
-  return {
-    x:16*Math.pow(Math.sin(t),3),
-    y:-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))
-  };
+let formed = false;
+let beatTime = 0;
+let lastBeat = 0;
+let lastFirework = 0;
+
+const sentences = [
+"Chúc em một năm mới thật nhiều niềm vui và bình an.",
+"Mong mọi dự định trong năm nay đều thuận lợi<br>và diễn ra đúng như những gì em đang hy vọng.",
+"Đặc biệt mong năm nay sẽ mang đến cho em<br>thật nhiều thành công và những điều khiến em tự hào về chính mình.",
+"Chỉ mong năm nay sẽ thật dịu dàng với em<br>và mang đến những điều em xứng đáng có được",
+"Happy New Year!"
+];
+
+let currentSentence = 0;
+const messageDiv = document.getElementById("message");
+
+function heart(t){
+    const x = 16*Math.pow(Math.sin(t),3);
+    const y = 13*Math.cos(t)
+        -5*Math.cos(2*t)
+        -2*Math.cos(3*t)
+        -Math.cos(4*t);
+    return {x,y};
 }
 
-function createHeartFirework(){
-  let centerX = Math.random()*canvas.width;
-  let centerY = Math.random()*canvas.height/2;
-
-  for(let i=0;i<100;i++){
+// ===== TẠO TIM =====
+for(let i=0;i<totalParticles;i++){
     let t = Math.random()*Math.PI*2;
-    let pos = heartShape(t);
+    let pos = heart(t);
+    let scale = 20 + Math.random()*5;
+
     particles.push({
-      x:centerX,
-      y:centerY,
-      vx:pos.x*0.3,
-      vy:pos.y*0.3,
-      alpha:1,
-      color:"pink"
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        targetX: canvas.width/2 + pos.x*scale,
+        targetY: canvas.height/2 - pos.y*scale,
+        size: Math.random()*1.8,
+        speed: 0.28 + Math.random()*0.06
     });
-  }
 }
 
-function animate(){
-  ctx.fillStyle="rgba(0,0,0,0.2)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+// ===== BỤI =====
+function createDustBurst(){
+    for(let i=0;i<300;i++){
+        let rp = particles[Math.floor(Math.random()*particles.length)];
+        let dx = rp.x - canvas.width/2;
+        let dy = rp.y - canvas.height/2;
+        let len = Math.sqrt(dx*dx + dy*dy);
 
-  particles.forEach(p=>{
-    ctx.fillStyle="rgba(255,105,180,"+p.alpha+")";
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,3,0,Math.PI*2);
-    ctx.fill();
-
-    p.x+=p.vx;
-    p.y+=p.vy;
-    p.alpha-=0.01;
-  });
-
-  particles=particles.filter(p=>p.alpha>0);
-
-  requestAnimationFrame(animate);
+        dust.push({
+            x: rp.x,
+            y: rp.y,
+            vx: (dx/len)*(1.5 + Math.random()*2),
+            vy: (dy/len)*(1.5 + Math.random()*2),
+            life: 50
+        });
+    }
 }
 
-setInterval(createHeartFirework,1500);
-animate();
+// ===== PHÁO HOA =====
+function createFirework(){
+    let fx = Math.random()*canvas.width;
+    let fy = Math.random()*canvas.height;
 
-setTimeout(()=>{
-  document.getElementById("msg").classList.add("show");
-},3000);
+    if(Math.abs(fx - canvas.width/2) < 200 &&
+       Math.abs(fy - canvas.height/2) < 200) return;
 
+    let hue = Math.random()*360;
 
-/* 🌸 Hoa đào rơi */
-function createPetal(){
-  let petal=document.createElement("div");
-  petal.classList.add("petal");
-  petal.innerHTML="🌸";
-  petal.style.left=Math.random()*window.innerWidth+"px";
-  petal.style.animationDuration=5+Math.random()*5+"s";
-  document.body.appendChild(petal);
+    for(let i=0;i<120;i++){
+        let angle = Math.random()*Math.PI*2;
+        let speed = Math.random()*4+1;
 
-  setTimeout(()=>{petal.remove();},10000);
+        fireworks.push({
+            x: fx,
+            y: fy,
+            vx: Math.cos(angle)*speed,
+            vy: Math.sin(angle)*speed,
+            life: 60,
+            hue: hue
+        });
+    }
 }
 
-setInterval(createPetal,300);
+function draw(){
 
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    let allClose = true;
+
+    // ===== VẼ TIM =====
+    particles.forEach(p=>{
+
+        if(!formed){
+            p.x += (p.targetX - p.x)*p.speed;
+            p.y += (p.targetY - p.y)*p.speed;
+
+            if(Math.abs(p.x - p.targetX)>3) allClose=false;
+        }else{
+            let beatScale = 1 + Math.sin(beatTime)*0.06;
+            p.x = canvas.width/2 + (p.targetX - canvas.width/2)*beatScale;
+            p.y = canvas.height/2 + (p.targetY - canvas.height/2)*beatScale;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+        ctx.fillStyle="rgba(255,80,120,0.95)";
+        ctx.shadowBlur=14;
+        ctx.shadowColor="rgba(255,80,120,1)";
+        ctx.fill();
+    });
+
+    if(allClose && !formed){
+        formed = true;
+    }
+
+    // ===== NHỊP TIM + CHỮ + PHÁO HOA =====
+    if(formed){
+
+        beatTime += 0.38;
+
+        // Glow chữ theo nhịp
+        let glow = 25 + Math.sin(beatTime)*10;
+        messageDiv.style.textShadow = `0 0 ${glow}px rgba(255,120,180,0.9)`;
+
+        // Hiện từng câu
+        if(Math.sin(beatTime) > 0.97 && Date.now() - lastBeat > 800){
+
+            if(currentSentence < sentences.length){
+
+                messageDiv.style.opacity = 0;
+
+                setTimeout(()=>{
+                    messageDiv.innerHTML = sentences[currentSentence];
+                    messageDiv.style.opacity = 1;
+                    currentSentence++;
+                },400);
+            }
+
+            createDustBurst();
+            lastBeat = Date.now();
+        }
+
+        // Pháo hoa
+        if(Date.now() - lastFirework > 1500){
+            createFirework();
+            lastFirework = Date.now();
+        }
+    }
+
+    // ===== VẼ BỤI =====
+    dust.forEach((d,index)=>{
+        d.x += d.vx;
+        d.y += d.vy;
+        d.life--;
+
+        ctx.beginPath();
+        ctx.arc(d.x,d.y,1.6,0,Math.PI*2);
+        ctx.fillStyle="rgba(255,120,160,"+(d.life/50)+")";
+        ctx.fill();
+
+        if(d.life<=0) dust.splice(index,1);
+    });
+
+    // ===== VẼ PHÁO HOA =====
+    fireworks.forEach((f,index)=>{
+        f.x += f.vx;
+        f.y += f.vy;
+        f.life--;
+
+        ctx.beginPath();
+        ctx.arc(f.x,f.y,2,0,Math.PI*2);
+        ctx.fillStyle = `hsla(${f.hue}, 100%, 60%, ${f.life/60})`;
+        ctx.fill();
+
+        if(f.life<=0) fireworks.splice(index,1);
+    });
+
+    requestAnimationFrame(draw);
+}
+
+draw();
+
+window.addEventListener("resize",()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
 </script>
+
 </body>
 </html>
