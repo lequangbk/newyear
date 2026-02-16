@@ -4,50 +4,49 @@
 <meta charset="UTF-8">
 <title>Chúc Em Năm Mới</title>
 <style>
-body {
-  margin: 0;
-  background: black;
-  overflow: hidden;
+body{
+  margin:0;
+  background:black;
+  overflow:hidden;
+  font-family:serif;
 }
 
-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
+canvas{
+  position:absolute;
+  top:0;
+  left:0;
 }
 
-.message {
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.5);
-  font-size: 42px;
-  font-weight: bold;
-  font-family: serif;
-  text-align: center;
-  opacity: 0;
-  background: linear-gradient(45deg, gold, orange, red);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px gold, 0 0 40px orange;
-  transition: all 1.5s ease;
+.message{
+  position:absolute;
+  top:40%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0.5);
+  font-size:48px;
+  font-weight:bold;
+  opacity:0;
+  background:linear-gradient(45deg,gold,orange,red);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 25px gold,0 0 50px orange;
+  transition:2s;
 }
 
-.message.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+.message.show{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
 }
 
-.horse {
-  position: absolute;
-  bottom: 20px;
-  font-size: 60px;
-  animation: run 8s linear infinite;
+.petal{
+  position:absolute;
+  top:-20px;
+  font-size:24px;
+  animation:fall linear infinite;
 }
 
-@keyframes run {
-  0% { left: -100px; }
-  100% { left: 110%; }
+@keyframes fall{
+  0%{transform:translateY(0) rotate(0deg);}
+  100%{transform:translateY(110vh) rotate(360deg);}
 }
 </style>
 </head>
@@ -56,10 +55,8 @@ canvas {
 <canvas id="canvas"></canvas>
 
 <div class="message" id="msg">
-Chúc em năm mới hạnh phúc 🧧✨
+Chúc em năm mới hạnh phúc 💖🌸
 </div>
-
-<div class="horse">🐎</div>
 
 <script>
 const canvas = document.getElementById("canvas");
@@ -69,48 +66,72 @@ canvas.height = window.innerHeight;
 
 let particles = [];
 
-function createFirework() {
-  let x = Math.random() * canvas.width;
-  let y = Math.random() * canvas.height / 2;
+function heartShape(t){
+  return {
+    x:16*Math.pow(Math.sin(t),3),
+    y:-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))
+  };
+}
 
-  for (let i = 0; i < 250; i++) {
+function createHeartFirework(){
+  let centerX = Math.random()*canvas.width;
+  let centerY = Math.random()*canvas.height/2;
+
+  for(let i=0;i<100;i++){
+    let t = Math.random()*Math.PI*2;
+    let pos = heartShape(t);
     particles.push({
-      x: x,
-      y: y,
-      vx: (Math.random() - 0.5) * 7,
-      vy: (Math.random() - 0.5) * 7,
-      alpha: 1,
-      color: `hsl(${Math.random()*360},100%,60%)`
+      x:centerX,
+      y:centerY,
+      vx:pos.x*0.3,
+      vy:pos.y*0.3,
+      alpha:1,
+      color:"pink"
     });
   }
 }
 
-function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.2)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+function animate(){
+  ctx.fillStyle="rgba(0,0,0,0.2)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  particles.forEach(p => {
-    ctx.fillStyle = p.color.replace(")", "," + p.alpha + ")").replace("hsl","hsla");
+  particles.forEach(p=>{
+    ctx.fillStyle="rgba(255,105,180,"+p.alpha+")";
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+    ctx.arc(p.x,p.y,3,0,Math.PI*2);
     ctx.fill();
 
-    p.x += p.vx;
-    p.y += p.vy;
-    p.alpha -= 0.01;
+    p.x+=p.vx;
+    p.y+=p.vy;
+    p.alpha-=0.01;
   });
 
-  particles = particles.filter(p => p.alpha > 0);
+  particles=particles.filter(p=>p.alpha>0);
 
   requestAnimationFrame(animate);
 }
 
-setInterval(createFirework, 1000);
+setInterval(createHeartFirework,1500);
 animate();
 
-setTimeout(() => {
+setTimeout(()=>{
   document.getElementById("msg").classList.add("show");
-}, 3000);
+},3000);
+
+
+/* 🌸 Hoa đào rơi */
+function createPetal(){
+  let petal=document.createElement("div");
+  petal.classList.add("petal");
+  petal.innerHTML="🌸";
+  petal.style.left=Math.random()*window.innerWidth+"px";
+  petal.style.animationDuration=5+Math.random()*5+"s";
+  document.body.appendChild(petal);
+
+  setTimeout(()=>{petal.remove();},10000);
+}
+
+setInterval(createPetal,300);
 
 </script>
 </body>
