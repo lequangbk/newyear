@@ -36,6 +36,9 @@ canvas{
 </head>
 
 <body>
+<audio id="bgMusic" loop>
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
 
 <canvas id="canvas"></canvas>
 <div id="message"></div>
@@ -234,7 +237,15 @@ function draw(){
 }
 
 draw();
+const music = document.getElementById("bgMusic");
 
+document.addEventListener("click", () => {
+    music.play();
+}, { once: true });
+
+music.volume = 0.4;
+
+    
 window.addEventListener("resize",()=>{
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -243,3 +254,4 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
